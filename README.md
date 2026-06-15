@@ -33,3 +33,47 @@ A full-stack banking application built with FastAPI, React, and PostgreSQL that 
 - GitHub
 
 ## Project Structure
+bank-account-manager/
+├── backend/
+├── frontend/
+└── README.md
+
+
+## API Endpoints
+
+### Accounts
+- Create Account
+- Get Account Details
+- List User Accounts
+
+### Transactions
+- Deposit
+- Withdraw
+- Transfer
+- View Transaction History
+
+## Future Enhancements
+
+- Authentication and Authorization
+- Admin Dashboard
+- Fixed Deposits (FD)
+- Recurring Deposits (RD)
+- Mutual Fund Tracking
+- Stock Portfolio Tracking
+- Property Asset Management
+
+## Installation
+
+### Backend
+
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+
+### Frontend
+cd frontend
+npm install
+npm run dev
+
+### Author
+Nandha Biju
