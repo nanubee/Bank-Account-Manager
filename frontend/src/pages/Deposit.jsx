@@ -4,18 +4,14 @@ import { USER_ID } from "../config";
 
 function Deposit() {
   const [accounts, setAccounts] = useState([]);
-
   const [selectedAccountId, setSelectedAccountId] = useState("");
-
   const [amount, setAmount] = useState("");
-
   const [description, setDescription] = useState("");
 
   useEffect(() => {
     const loadAccounts = async () => {
       try {
         const response = await api.get(`/accounts/${USER_ID}`);
-
         setAccounts(response.data);
       } catch (error) {
         console.error(error);
@@ -30,7 +26,7 @@ function Deposit() {
       await api.post("/deposit", {
         account_id: Number(selectedAccountId),
         amount: Number(amount),
-        description: description,
+        description,
       });
 
       alert("Deposit successful");
@@ -44,46 +40,75 @@ function Deposit() {
   };
 
   return (
-    <div>
-      <h1>Deposit Money</h1>
+    <div className="max-w-4xl mx-auto p-6">
+      {/* Header */}
+      <h1 className="text-3xl font-bold text-slate-900">Deposit Funds</h1>
 
-      <select
-        value={selectedAccountId}
-        onChange={(e) => setSelectedAccountId(e.target.value)}
-      >
-        <option value="">Select Account</option>
+      <p className="text-slate-500 mt-2 mb-8">
+        Add money to any of your accounts.
+      </p>
 
-        {accounts.map((account) => (
-          <option key={account.account_id} value={account.account_id}>
-            {account.bank_name} (...{account.account_number_last4})
-          </option>
-        ))}
-      </select>
+      {/* Deposit Form Card */}
+      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+        <h2 className="text-xl font-semibold mb-6">Deposit Details</h2>
 
-      <br />
-      <br />
+        <div className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Select Account
+            </label>
 
-      <input
-        type="number"
-        placeholder="Amount"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-      />
+            <select
+              value={selectedAccountId}
+              onChange={(e) => setSelectedAccountId(e.target.value)}
+              className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="">Select Account</option>
 
-      <br />
-      <br />
+              {accounts.map((account) => (
+                <option key={account.account_id} value={account.account_id}>
+                  {account.bank_name} (...{account.account_number_last4})
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <input
-        type="text"
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Amount
+            </label>
 
-      <br />
-      <br />
+            <input
+              type="number"
+              placeholder="Enter amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
 
-      <button onClick={depositMoney}>Deposit</button>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Description
+            </label>
+
+            <input
+              type="text"
+              placeholder="Salary, Savings, Cash Deposit..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          <button
+            onClick={depositMoney}
+            className="w-full bg-emerald-600 text-white py-3 rounded-xl font-medium hover:bg-emerald-700 transition"
+          >
+            Deposit Money
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

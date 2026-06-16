@@ -6,16 +6,13 @@ function Withdraw() {
   const [accounts, setAccounts] = useState([]);
 
   const [selectedAccountId, setSelectedAccountId] = useState("");
-
   const [amount, setAmount] = useState("");
-
   const [description, setDescription] = useState("");
 
   useEffect(() => {
     const loadAccounts = async () => {
       try {
         const response = await api.get(`/accounts/${USER_ID}`);
-
         setAccounts(response.data);
       } catch (error) {
         console.error(error);
@@ -26,64 +23,103 @@ function Withdraw() {
   }, []);
 
   const withdrawMoney = async () => {
+    if (!selectedAccountId || !amount) {
+      alert("Please fill all required fields");
+      return;
+    }
+
     try {
-      await api.post("/withdraw", {
+      await api.post("/transactions/withdraw", {
         account_id: Number(selectedAccountId),
         amount: Number(amount),
-        description: description,
+        description,
       });
 
-      alert("Withdraw successful");
+      alert("Withdrawal successful");
 
       setSelectedAccountId("");
       setAmount("");
       setDescription("");
     } catch (error) {
       console.error(error);
+      alert(error.response?.data?.detail || "Withdrawal failed");
     }
   };
 
   return (
-    <div>
-      <h1>Withdraw Money</h1>
+    <div className="max-w-4xl mx-auto p-6">
+      {/* Header */}
+      <h1 className="text-3xl font-bold text-slate-900">Withdraw Funds</h1>
 
-      <select
-        value={selectedAccountId}
-        onChange={(e) => setSelectedAccountId(e.target.value)}
-      >
-        <option value="">Select Account</option>
+      <p className="text-slate-500 mt-2 mb-8">
+        Withdraw money from any of your accounts.
+      </p>
 
-        {accounts.map((account) => (
-          <option key={account.account_id} value={account.account_id}>
-            {account.bank_name} (...{account.account_number_last4})
-          </option>
-        ))}
-      </select>
+      {/* Withdraw Card */}
+      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+        <h2 className="text-xl font-semibold mb-6">Withdrawal Details</h2>
 
-      <br />
-      <br />
+        <div className="space-y-5">
+          {/* Account Selection */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Select Account
+            </label>
 
-      <input
-        type="number"
-        placeholder="Amount"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-      />
+            <select
+              value={selectedAccountId}
+              onChange={(e) => setSelectedAccountId(e.target.value)}
+              className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              <option value="">Select Account</option>
 
-      <br />
-      <br />
+              {accounts.map((account) => (
+                <option key={account.account_id} value={account.account_id}>
+                  {account.bank_name} (...{account.account_number_last4})
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <input
-        type="text"
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
+          {/* Amount */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Amount
+            </label>
 
-      <br />
-      <br />
+            <input
+              type="number"
+              placeholder="Enter withdrawal amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500"
+            />
+          </div>
 
-      <button onClick={withdrawMoney}>Withdraw</button>
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Description
+            </label>
+
+            <input
+              type="text"
+              placeholder="ATM Withdrawal, Shopping, Bills..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500"
+            />
+          </div>
+
+          {/* Withdraw Button */}
+          <button
+            onClick={withdrawMoney}
+            className="w-full bg-red-600 text-white py-3 rounded-xl font-medium hover:bg-red-700 transition"
+          >
+            Withdraw Money
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

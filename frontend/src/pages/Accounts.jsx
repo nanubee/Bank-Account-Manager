@@ -3,8 +3,8 @@ import api from "../api";
 import { USER_ID } from "../config";
 
 function Accounts() {
-
   const [accounts, setAccounts] = useState([]);
+
   const [bankName, setBankName] = useState("");
   const [country, setCountry] = useState("");
   const [accountType, setAccountType] = useState("");
@@ -39,7 +39,7 @@ function Accounts() {
         account_type: accountType,
         account_number_last4: accountNumber,
         balance: Number(balance),
-        currency
+        currency,
       });
 
       await loadAccounts();
@@ -50,90 +50,122 @@ function Accounts() {
       setAccountNumber("");
       setBalance("");
       setCurrency("");
-
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <div>
+    <div className="max-w-7xl mx-auto p-6">
+      {/* Page Header */}
+      <h1 className="text-3xl font-bold text-slate-900">My Accounts</h1>
 
-      <h1>My Accounts</h1>
+      <p className="text-slate-500 mt-2 mb-8">
+        Manage all your bank accounts in one place.
+      </p>
 
-      <input
-      type="text"
-      placeholder="Bank Name"
-      value={bankName}
-      onChange={(e) => setBankName(e.target.value)}
-    />
-      <p>{bankName}</p>
-      <br />
-      <input
-      type="text"
-      placeholder="Country"
-      value={country}
-      onChange={(e) => setCountry(e.target.value)}
-    />
-      <br />
-      <input
-        type="text"
-        placeholder="Account Type"
-        value={accountType}
-        onChange={(e) => setAccountType(e.target.value)}
-      />
-      <br />
-      <input
-      type="text"
-      maxLength="4"
-      placeholder="Last 4 Digits"
-      value={accountNumber}
-      onChange={(e) => setAccountNumber(e.target.value)}
-    />
-      {accountNumber.length > 0 && accountNumber.length !== 4 && (
-        <p>Account number must contain exactly 4 digits</p>
-      )}
-      <br />
-      <input
-        type="number"
-        placeholder="Balance"
-        value={balance}
-        onChange={(e) => setBalance(e.target.value)}
-      />
-      <br />
-      <input
-        type="text"
-        placeholder="Currency"
-        value={currency}
-        onChange={(e) => setCurrency(e.target.value)}
-      />
-      <br />
-      <button onClick={createAccount}>
-        Create Account
-      </button>
-      <br />
-      {accounts.map((account) => (
+      {/* Create Account Card */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8">
+        <h2 className="text-xl font-semibold mb-6">Add New Account</h2>
 
-        <div key={account.account_id}>
+        <div className="grid md:grid-cols-2 gap-4">
+          <input
+            className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            type="text"
+            placeholder="Bank Name"
+            value={bankName}
+            onChange={(e) => setBankName(e.target.value)}
+          />
 
-          <h2>{account.bank_name}</h2>
+          <input
+            className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            type="text"
+            placeholder="Country"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+          />
 
-          <p>ID: {account.account_id}</p>
+          <input
+            className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            type="text"
+            placeholder="Account Type"
+            value={accountType}
+            onChange={(e) => setAccountType(e.target.value)}
+          />
 
-          <p>Type: {account.account_type}</p>
+          <input
+            className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            type="text"
+            maxLength="4"
+            placeholder="Last 4 Digits"
+            value={accountNumber}
+            onChange={(e) => setAccountNumber(e.target.value)}
+          />
 
-          <p>Card Number: {account.account_number_last4}</p>
+          <input
+            className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            type="number"
+            placeholder="Balance"
+            value={balance}
+            onChange={(e) => setBalance(e.target.value)}
+          />
 
-          <p>Balance: {account.balance}</p>
-
-          <p>Currency: {account.currency}</p>
-
-          <p>Country: {account.country}</p>
-
+          <input
+            className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            type="text"
+            placeholder="Currency"
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+          />
         </div>
 
-      ))}
+        {accountNumber.length > 0 && accountNumber.length !== 4 && (
+          <p className="text-red-500 text-sm mt-3">
+            Account number must contain exactly 4 digits
+          </p>
+        )}
 
+        <button
+          onClick={createAccount}
+          className="mt-6 bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 transition"
+        >
+          Create Account
+        </button>
+      </div>
+
+      {/* Accounts Grid */}
+      <h2 className="text-2xl font-bold text-slate-900 mb-4">
+        Accounts Overview
+      </h2>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {accounts.map((account) => (
+          <div
+            key={account.account_id}
+            className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition"
+          >
+            <h3 className="text-xl font-bold text-slate-900">
+              {account.bank_name}
+            </h3>
+
+            <p className="text-slate-500 mt-1">{account.account_type}</p>
+
+            <div className="mt-6">
+              <p className="text-sm text-slate-500">Balance</p>
+
+              <p className="text-3xl font-bold text-emerald-600">
+                {account.currency} {Number(account.balance).toLocaleString()}
+              </p>
+            </div>
+
+            <div className="mt-6 text-sm text-slate-500 space-y-1">
+              <p>Card: **** {account.account_number_last4}</p>
+              <p>Country: {account.country}</p>
+              <p>ID: {account.account_id}</p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
