@@ -1,6 +1,5 @@
-from pydantic import BaseModel, EmailStr
-from decimal import Decimal
-from datetime import date
+from pydantic import BaseModel
+
 #validates data
 
 #BankAcc

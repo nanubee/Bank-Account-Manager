@@ -8,6 +8,9 @@ import Transactions from "./pages/Transactions";
 import Transfer from "./pages/Transfer";
 import FD from "./pages/FD";
 import RD from "./pages/RD";
+import MF from "./pages/MF";
+import Stock from "./pages/Stock";
+import Assets from "./pages/Assets";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -32,6 +35,9 @@ function App() {
             <Route path="/transfer" element={<Transfer />} />
             <Route path="/fds" element={<FD />} />
             <Route path="/rds" element={<RD />} />
+            <Route path="/mfs" element={<MF />} />
+            <Route path="/stocks" element={<Stock />} />
+            <Route path="/assets" element={<Assets />} />
           </Routes>
         </main>
       </div>

@@ -73,6 +73,14 @@ function Sidebar({ expanded, setExpanded }) {
           💰 {expanded && "Recurring Deposits"}
         </Link>
 
+        <Link to="/mfs" className="hover:text-emerald-400">
+          💹 {expanded && "Mutual Funds"}
+        </Link>
+
+        <Link to="/stocks" className="hover:text-emerald-400">
+          🎯 {expanded && "Stocks"}
+        </Link>
+
         {expanded && (
           <h2 className="text-xs uppercase text-slate-400 mt-4">Wealth</h2>
         )}

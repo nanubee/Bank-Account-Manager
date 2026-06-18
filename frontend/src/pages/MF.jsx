@@ -2,22 +2,19 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import { USER_ID } from "../config";
 
-function Assets() {
+function MF() {
   const [accounts, setAccounts] = useState([]);
-  const [assets, setAssets] = useState([]);
+  const [mfs, setMFs] = useState([]);
 
   const [selectedAccountId, setSelectedAccountId] = useState("");
-  const [assetType, setAssetType] = useState("");
-  const [assetName, setAssetName] = useState("");
-  const [description, setDescription] = useState("");
+  const [fundName, setFundName] = useState("");
+  const [investedAmount, setInvestedAmount] = useState("");
   const [currentValue, setCurrentValue] = useState("");
   const [purchaseDate, setPurchaseDate] = useState("");
-
   const [editingId, setEditingId] = useState(null);
 
-  const [editAssetType, setEditAssetType] = useState("");
-  const [editAssetName, setEditAssetName] = useState("");
-  const [editDescription, setEditDescription] = useState("");
+  const [editFundName, setEditFundName] = useState("");
+  const [editInvestedAmount, setEditInvestedAmount] = useState("");
   const [editCurrentValue, setEditCurrentValue] = useState("");
 
   const loadData = async () => {
@@ -25,8 +22,8 @@ function Assets() {
       const accountsResponse = await api.get(`/accounts/${USER_ID}`);
       setAccounts(accountsResponse.data);
 
-      const assetsResponse = await api.get(`/assets/user/${USER_ID}`);
-      setAssets(assetsResponse.data);
+      const mfResponse = await api.get(`/mfs/user/${USER_ID}`);
+      setMFs(mfResponse.data);
     } catch (error) {
       console.error(error);
     }
@@ -36,23 +33,21 @@ function Assets() {
     loadData();
   }, []);
 
-  const createAsset = async () => {
+  const createMF = async () => {
     try {
-      await api.post("/assets/", {
+      await api.post("/mfs/", {
         account_id: Number(selectedAccountId),
-        asset_type: assetType,
-        asset_name: assetName,
-        description: description,
+        fund_name: fundName,
+        invested_amount: Number(investedAmount),
         current_value: Number(currentValue),
         purchase_date: purchaseDate,
       });
 
-      alert("Asset added successfully");
+      alert("Mutual Fund added successfully");
 
       setSelectedAccountId("");
-      setAssetType("");
-      setAssetName("");
-      setDescription("");
+      setFundName("");
+      setInvestedAmount("");
       setCurrentValue("");
       setPurchaseDate("");
 
@@ -63,25 +58,35 @@ function Assets() {
     }
   };
 
-  const startEdit = (asset) => {
-    setEditingId(asset.asset_id);
+  const deleteMF = async (id) => {
+    try {
+      await api.delete(`/mfs/${id}`);
 
-    setEditAssetType(asset.asset_type);
-    setEditAssetName(asset.asset_name);
-    setEditDescription(asset.description);
-    setEditCurrentValue(asset.current_value);
+      alert("Mutual Fund deleted");
+
+      loadData();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const updateAsset = async () => {
+  const startEdit = (mf) => {
+    setEditingId(mf.mf_id);
+
+    setEditFundName(mf.fund_name);
+    setEditInvestedAmount(mf.invested_amount);
+    setEditCurrentValue(mf.current_value);
+  };
+
+  const updateMF = async () => {
     try {
-      await api.put(`/assets/${editingId}`, {
-        asset_type: editAssetType,
-        asset_name: editAssetName,
-        description: editDescription,
+      await api.put(`/mfs/${editingId}`, {
+        fund_name: editFundName,
+        invested_amount: Number(editInvestedAmount),
         current_value: Number(editCurrentValue),
       });
 
-      alert("Asset updated");
+      alert("Mutual Fund updated");
 
       setEditingId(null);
 
@@ -91,28 +96,14 @@ function Assets() {
     }
   };
 
-  const deleteAsset = async (id) => {
-    try {
-      await api.delete(`/assets/${id}`);
-
-      alert("Asset deleted");
-
-      loadData();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-2">Assets</h1>
+      <h1 className="text-3xl font-bold mb-2">Mutual Funds</h1>
 
-      <p className="text-slate-500 mb-8">
-        Track physical assets and net worth.
-      </p>
+      <p className="text-slate-500 mb-8">Track your mutual fund investments.</p>
 
       <div className="bg-white rounded-2xl p-6 shadow-sm border mb-8">
-        <h2 className="text-xl font-semibold mb-4">Add Asset</h2>
+        <h2 className="text-xl font-semibold mb-4">Add Mutual Fund</h2>
 
         <div className="grid md:grid-cols-2 gap-4">
           <select
@@ -124,28 +115,24 @@ function Assets() {
 
             {accounts.map((account) => (
               <option key={account.account_id} value={account.account_id}>
-                {account.bank_name} (...{account.account_number_last4})
+                {account.bank_name}
               </option>
             ))}
           </select>
 
-          <select
-            value={assetType}
-            onChange={(e) => setAssetType(e.target.value)}
-            className="border rounded-xl p-3"
-          >
-            <option value="">Select Asset Type</option>
-            <option value="Property">Property</option>
-            <option value="Vehicle">Vehicle</option>
-            <option value="Gold">Gold</option>
-            <option value="Other">Other</option>
-          </select>
-
           <input
             type="text"
-            placeholder="Asset Name"
-            value={assetName}
-            onChange={(e) => setAssetName(e.target.value)}
+            placeholder="Fund Name"
+            value={fundName}
+            onChange={(e) => setFundName(e.target.value)}
+            className="border rounded-xl p-3"
+          />
+
+          <input
+            type="number"
+            placeholder="Invested Amount"
+            value={investedAmount}
+            onChange={(e) => setInvestedAmount(e.target.value)}
             className="border rounded-xl p-3"
           />
 
@@ -163,53 +150,34 @@ function Assets() {
             onChange={(e) => setPurchaseDate(e.target.value)}
             className="border rounded-xl p-3"
           />
-
-          <textarea
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="border rounded-xl p-3"
-          />
         </div>
 
         <button
-          onClick={createAsset}
-          className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700"
+          onClick={createMF}
+          className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-xl"
         >
-          Add Asset
+          Add Mutual Fund
         </button>
       </div>
 
-      <h2 className="text-2xl font-semibold mb-4">My Assets</h2>
-
       <div className="grid gap-4">
-        {assets.map((asset) => (
+        {mfs.map((mf) => (
           <div
-            key={asset.asset_id}
+            key={mf.mf_id}
             className="bg-white rounded-2xl p-6 shadow-sm border"
           >
-            {editingId === asset.asset_id ? (
+            {editingId === mf.mf_id ? (
               <>
-                <select
-                  value={editAssetType}
-                  onChange={(e) => setEditAssetType(e.target.value)}
-                  className="border rounded-xl p-2 w-full mb-2"
-                >
-                  <option value="Property">Property</option>
-                  <option value="Vehicle">Vehicle</option>
-                  <option value="Gold">Gold</option>
-                  <option value="Other">Other</option>
-                </select>
-
                 <input
-                  value={editAssetName}
-                  onChange={(e) => setEditAssetName(e.target.value)}
+                  value={editFundName}
+                  onChange={(e) => setEditFundName(e.target.value)}
                   className="border rounded-xl p-2 w-full mb-2"
                 />
 
-                <textarea
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
+                <input
+                  type="number"
+                  value={editInvestedAmount}
+                  onChange={(e) => setEditInvestedAmount(e.target.value)}
                   className="border rounded-xl p-2 w-full mb-2"
                 />
 
@@ -221,7 +189,7 @@ function Assets() {
                 />
 
                 <button
-                  onClick={updateAsset}
+                  onClick={updateMF}
                   className="bg-green-600 text-white px-4 py-2 rounded-xl mr-2"
                 >
                   Save
@@ -236,23 +204,28 @@ function Assets() {
               </>
             ) : (
               <>
-                <h3 className="font-bold text-lg">{asset.asset_name}</h3>
+                <h3 className="font-bold text-lg">{mf.fund_name}</h3>
 
-                <p>Type: {asset.asset_type}</p>
+                <p>Invested: ₹{Number(mf.invested_amount).toLocaleString()}</p>
 
-                <p>Value: ₹{Number(asset.current_value).toLocaleString()}</p>
+                <p>Current: ₹{Number(mf.current_value).toLocaleString()}</p>
 
-                <p>Description: {asset.description}</p>
+                <p>
+                  Gain/Loss: ₹
+                  {(
+                    Number(mf.current_value) - Number(mf.invested_amount)
+                  ).toLocaleString()}
+                </p>
 
                 <button
-                  onClick={() => startEdit(asset)}
+                  onClick={() => startEdit(mf)}
                   className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-xl mr-2"
                 >
                   Edit
                 </button>
 
                 <button
-                  onClick={() => deleteAsset(asset.asset_id)}
+                  onClick={() => deleteMF(mf.mf_id)}
                   className="mt-4 bg-red-500 text-white px-4 py-2 rounded-xl"
                 >
                   Delete
@@ -266,4 +239,4 @@ function Assets() {
   );
 }
 
-export default Assets;
+export default MF;

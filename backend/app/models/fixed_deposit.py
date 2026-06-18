@@ -23,3 +23,4 @@ class FixedDeposit(Base):
     maturity_amount = Column(Numeric(12, 2))
 
     status = Column(String, default="active")
+    

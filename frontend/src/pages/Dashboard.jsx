@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
 import api from "../api";
+import { USER_ID } from "../config";
 
 function Dashboard() {
   const [summary, setSummary] = useState({
     bank_balance: 0,
     fd_value: 0,
     rd_value: 0,
+    mf_value: 0,
+    stock_value: 0,
+    asset_value: 0,
     total_net_worth: 0,
   });
 
   useEffect(() => {
     const loadDashboard = async () => {
       try {
-        const response = await api.get("/dashboard/net-worth");
+        const response = await api.get(`/dashboard/net-worth/${USER_ID}`);
+
         setSummary(response.data);
       } catch (error) {
         console.error(error);
@@ -59,9 +64,33 @@ function Dashboard() {
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <p className="text-slate-500 mb-2">Net Worth</p>
+          <p className="text-slate-500 mb-2">Mutual Funds</p>
 
-          <h2 className="text-3xl font-bold text-slate-900">
+          <h2 className="text-3xl font-bold text-emerald-600">
+            ₹{Number(summary.mf_value).toLocaleString()}
+          </h2>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <p className="text-slate-500 mb-2">Stocks</p>
+
+          <h2 className="text-3xl font-bold text-orange-600">
+            ₹{Number(summary.stock_value).toLocaleString()}
+          </h2>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <p className="text-slate-500 mb-2">Assets</p>
+
+          <h2 className="text-3xl font-bold text-cyan-600">
+            ₹{Number(summary.asset_value).toLocaleString()}
+          </h2>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 lg:col-span-2">
+          <p className="text-slate-500 mb-2">Total Net Worth</p>
+
+          <h2 className="text-4xl font-bold text-slate-900">
             ₹{Number(summary.total_net_worth).toLocaleString()}
           </h2>
         </div>
