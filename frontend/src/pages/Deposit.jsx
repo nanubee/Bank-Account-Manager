@@ -23,7 +23,7 @@ function Deposit() {
 
   const depositMoney = async () => {
     try {
-      await api.post("/deposit", {
+      await api.post("/transactions/deposit", {
         account_id: Number(selectedAccountId),
         amount: Number(amount),
         description,

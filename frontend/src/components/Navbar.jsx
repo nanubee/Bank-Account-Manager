@@ -44,6 +44,10 @@ function Navbar() {
             <Link to="/transfer" className="hover:text-emerald-600 transition">
               Transfer
             </Link>
+
+            <Link to="/fds" className="hover:text-blue-600">
+              Fixed Deposits
+            </Link>
           </div>
         </div>
       </div>

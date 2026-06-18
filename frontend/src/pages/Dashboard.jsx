@@ -1,27 +1,26 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { USER_ID } from "../config";
 
 function Dashboard() {
-  const [accounts, setAccounts] = useState([]);
+  const [summary, setSummary] = useState({
+    bank_balance: 0,
+    fd_value: 0,
+    rd_value: 0,
+    total_net_worth: 0,
+  });
 
   useEffect(() => {
-    const loadAccounts = async () => {
+    const loadDashboard = async () => {
       try {
-        const response = await api.get(`/accounts/${USER_ID}`);
-        setAccounts(response.data);
+        const response = await api.get("/dashboard/net-worth");
+        setSummary(response.data);
       } catch (error) {
         console.error(error);
       }
     };
 
-    loadAccounts();
+    loadDashboard();
   }, []);
-
-  const totalBalance = accounts.reduce(
-    (sum, account) => sum + account.balance,
-    0,
-  );
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -34,20 +33,36 @@ function Dashboard() {
         place.
       </p>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <p className="text-slate-500 mb-2">Total Accounts</p>
+          <p className="text-slate-500 mb-2">Bank Balance</p>
 
-          <h2 className="text-4xl font-bold text-slate-900">
-            {accounts.length}
+          <h2 className="text-3xl font-bold text-green-600">
+            ₹{Number(summary.bank_balance).toLocaleString()}
           </h2>
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <p className="text-slate-500 mb-2">Total Balance</p>
+          <p className="text-slate-500 mb-2">FD Value</p>
 
-          <h2 className="text-4xl font-bold text-green-600">
-            ₹{totalBalance.toLocaleString()}
+          <h2 className="text-3xl font-bold text-blue-600">
+            ₹{Number(summary.fd_value).toLocaleString()}
+          </h2>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <p className="text-slate-500 mb-2">RD Value</p>
+
+          <h2 className="text-3xl font-bold text-purple-600">
+            ₹{Number(summary.rd_value).toLocaleString()}
+          </h2>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <p className="text-slate-500 mb-2">Net Worth</p>
+
+          <h2 className="text-3xl font-bold text-slate-900">
+            ₹{Number(summary.total_net_worth).toLocaleString()}
           </h2>
         </div>
       </div>
