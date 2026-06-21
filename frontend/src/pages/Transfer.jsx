@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { USER_ID } from "../config";
+//import { USER_ID } from "../config";
 
 function Transfer() {
+  //const USER_ID = localStorage.getItem("user_id");
   const [accounts, setAccounts] = useState([]);
 
   const [selectedFromAccountId, setSelectedFromAccountId] = useState("");
@@ -14,7 +15,7 @@ function Transfer() {
   useEffect(() => {
     const loadAccounts = async () => {
       try {
-        const response = await api.get(`/accounts/${USER_ID}`);
+        const response = await api.get(`/accounts`);
         setAccounts(response.data);
       } catch (error) {
         console.error(error);

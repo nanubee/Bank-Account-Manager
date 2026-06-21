@@ -6,6 +6,8 @@ from app.database import get_db
 from app.models.account import Account
 from app.models.recurring_deposit import RecurringDeposit
 from app.models.rd_payment import RDPayment
+from app.models.user import User
+from app.core.auth import get_current_user
 
 from app.schemas.recurring_deposit import RDCreate
 from app.schemas.rd_payment import RDPaymentCreate
@@ -21,12 +23,14 @@ router = APIRouter(
 @router.post("/")
 def create_rd(
     rd: RDCreate,
+    current_user: User= Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
 
     account = (
         db.query(Account)
-        .filter(Account.account_id == rd.account_id)
+        .filter(Account.account_id == rd.account_id, 
+                Account.user_id == current_user.user_id)
         .first()
     )
 
@@ -53,15 +57,16 @@ def create_rd(
 
 #Get RDs
 # Returns RDs
-@router.get("/user/{user_id}")
+@router.get("/user")
 def get_rds_by_user(
-    user_id: int,
+    #user_id: int,
+    Current_user: User= Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     return (
         db.query(RecurringDeposit)
         .join(Account)
-        .filter(Account.user_id == user_id)
+        .filter(Account.user_id == Current_user.user_id)
         .all()
     )
 
@@ -151,8 +156,12 @@ def create_rd_payment(
 
     db.add(rd_payment)
 
-    db.commit()
+    installments_paid += 1
 
+    if installments_paid == rd.duration_months:
+        rd.status = "closed"
+
+    db.commit()
     db.refresh(rd_payment)
 
     return rd_payment
@@ -236,4 +245,70 @@ def get_rd_summary(
         "installments_remaining": installments_remaining,
         "expected_total_contribution": expected_total_contribution,
         "expected_maturity_amount": expected_maturity_amount
+    }
+
+@router.delete("/{rd_id}")
+def delete_rd(
+    rd_id: int,
+    db: Session = Depends(get_db)
+):
+    rd = (
+        db.query(RecurringDeposit)
+        .filter(RecurringDeposit.rd_id == rd_id)
+        .first()
+    )
+
+    if not rd:
+        raise HTTPException(
+            status_code=404,
+            detail="RD not found"
+        )
+
+    if rd.status == "active":
+        raise HTTPException(
+            status_code=400,
+            detail="Complete the RD before deleting"
+        )
+
+    db.query(RDPayment).filter(
+        RDPayment.rd_id == rd_id
+    ).delete()
+
+    db.delete(rd)
+
+    db.commit()
+
+    return {
+        "message": "RD deleted successfully"
+    }
+
+@router.post("/{rd_id}/close")
+def close_rd(
+    rd_id: int,
+    db: Session = Depends(get_db)
+):
+    rd = (
+        db.query(RecurringDeposit)
+        .filter(RecurringDeposit.rd_id == rd_id)
+        .first()
+    )
+
+    if not rd:
+        raise HTTPException(
+            status_code=404,
+            detail="RD not found"
+        )
+
+    if rd.status == "closed":
+        raise HTTPException(
+            status_code=400,
+            detail="RD already closed"
+        )
+
+    rd.status = "closed"
+
+    db.commit()
+
+    return {
+        "message": "RD closed successfully"
     }

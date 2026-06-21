@@ -6,6 +6,8 @@ from app.database import get_db
 from app.models.mutual_fund import MutualFund
 from app.models.account import Account
 from app.schemas.mutual_fund import MFUpdate
+from app.models.user import User
+from app.core.auth import get_current_user
 
 from app.schemas.mutual_fund import MFCreate
 
@@ -47,15 +49,15 @@ def create_mf(
 
 
 # Get all mf belonging to a user
-@router.get("/user/{user_id}")
+@router.get("/user")
 def get_mf_by_user(
-    user_id: int,
+    Current_user: User= Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     return (
         db.query(MutualFund)
         .join(Account)
-        .filter(Account.user_id == user_id)
+        .filter(Account.user_id == Current_user.user_id)
         .all()
     )
 

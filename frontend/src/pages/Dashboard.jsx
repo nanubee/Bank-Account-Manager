@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { USER_ID } from "../config";
+//import { USER_ID } from "../config";
 
 function Dashboard() {
+  //const USER_ID = localStorage.getItem("user_id");
   const [summary, setSummary] = useState({
     bank_balance: 0,
     fd_value: 0,
@@ -16,7 +17,7 @@ function Dashboard() {
   useEffect(() => {
     const loadDashboard = async () => {
       try {
-        const response = await api.get(`/dashboard/net-worth/${USER_ID}`);
+        const response = await api.get(`/dashboard/net-worth`);
 
         setSummary(response.data);
       } catch (error) {
@@ -30,7 +31,7 @@ function Dashboard() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <h1 className="text-3xl font-bold text-slate-900">
-        Welcome to MoneyPetti
+        Welcome to MoneyPetti, {localStorage.getItem("full_name")} 👋
       </h1>
 
       <p className="text-slate-500 mt-2 mb-8">

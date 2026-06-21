@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { USER_ID } from "../config";
 
 function MF() {
   const [accounts, setAccounts] = useState([]);
@@ -19,10 +18,10 @@ function MF() {
 
   const loadData = async () => {
     try {
-      const accountsResponse = await api.get(`/accounts/${USER_ID}`);
+      const accountsResponse = await api.get(`/accounts`);
       setAccounts(accountsResponse.data);
 
-      const mfResponse = await api.get(`/mfs/user/${USER_ID}`);
+      const mfResponse = await api.get(`/mfs/user`);
       setMFs(mfResponse.data);
     } catch (error) {
       console.error(error);
@@ -115,7 +114,7 @@ function MF() {
 
             {accounts.map((account) => (
               <option key={account.account_id} value={account.account_id}>
-                {account.bank_name}
+                {account.bank_name} (...{account.account_number_last4})
               </option>
             ))}
           </select>
@@ -159,81 +158,93 @@ function MF() {
           Add Mutual Fund
         </button>
       </div>
-
       <div className="grid gap-4">
-        {mfs.map((mf) => (
-          <div
-            key={mf.mf_id}
-            className="bg-white rounded-2xl p-6 shadow-sm border"
-          >
-            {editingId === mf.mf_id ? (
-              <>
-                <input
-                  value={editFundName}
-                  onChange={(e) => setEditFundName(e.target.value)}
-                  className="border rounded-xl p-2 w-full mb-2"
-                />
+        {mfs.map((mf) => {
+          const linkedAccount = accounts.find(
+            (account) => account.account_id === mf.account_id,
+          );
 
-                <input
-                  type="number"
-                  value={editInvestedAmount}
-                  onChange={(e) => setEditInvestedAmount(e.target.value)}
-                  className="border rounded-xl p-2 w-full mb-2"
-                />
+          return (
+            <div
+              key={mf.mf_id}
+              className="bg-white rounded-2xl p-6 shadow-sm border"
+            >
+              {editingId === mf.mf_id ? (
+                <>
+                  <input
+                    value={editFundName}
+                    onChange={(e) => setEditFundName(e.target.value)}
+                    className="border rounded-xl p-2 w-full mb-2"
+                  />
 
-                <input
-                  type="number"
-                  value={editCurrentValue}
-                  onChange={(e) => setEditCurrentValue(e.target.value)}
-                  className="border rounded-xl p-2 w-full mb-2"
-                />
+                  <input
+                    type="number"
+                    value={editInvestedAmount}
+                    onChange={(e) => setEditInvestedAmount(e.target.value)}
+                    className="border rounded-xl p-2 w-full mb-2"
+                  />
 
-                <button
-                  onClick={updateMF}
-                  className="bg-green-600 text-white px-4 py-2 rounded-xl mr-2"
-                >
-                  Save
-                </button>
+                  <input
+                    type="number"
+                    value={editCurrentValue}
+                    onChange={(e) => setEditCurrentValue(e.target.value)}
+                    className="border rounded-xl p-2 w-full mb-2"
+                  />
 
-                <button
-                  onClick={() => setEditingId(null)}
-                  className="bg-slate-500 text-white px-4 py-2 rounded-xl"
-                >
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <>
-                <h3 className="font-bold text-lg">{mf.fund_name}</h3>
+                  <button
+                    onClick={updateMF}
+                    className="bg-green-600 text-white px-4 py-2 rounded-xl mr-2"
+                  >
+                    Save
+                  </button>
 
-                <p>Invested: ₹{Number(mf.invested_amount).toLocaleString()}</p>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="bg-slate-500 text-white px-4 py-2 rounded-xl"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 className="font-bold text-lg">{mf.fund_name}</h3>
 
-                <p>Current: ₹{Number(mf.current_value).toLocaleString()}</p>
+                  <p>
+                    Linked Account: {linkedAccount?.bank_name} (
+                    {linkedAccount?.account_number_last4})
+                  </p>
 
-                <p>
-                  Gain/Loss: ₹
-                  {(
-                    Number(mf.current_value) - Number(mf.invested_amount)
-                  ).toLocaleString()}
-                </p>
+                  <p>
+                    Invested: ₹{Number(mf.invested_amount).toLocaleString()}
+                  </p>
 
-                <button
-                  onClick={() => startEdit(mf)}
-                  className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-xl mr-2"
-                >
-                  Edit
-                </button>
+                  <p>Current: ₹{Number(mf.current_value).toLocaleString()}</p>
 
-                <button
-                  onClick={() => deleteMF(mf.mf_id)}
-                  className="mt-4 bg-red-500 text-white px-4 py-2 rounded-xl"
-                >
-                  Delete
-                </button>
-              </>
-            )}
-          </div>
-        ))}
+                  <p>
+                    Gain/Loss: ₹
+                    {(
+                      Number(mf.current_value) - Number(mf.invested_amount)
+                    ).toLocaleString()}
+                  </p>
+
+                  <button
+                    onClick={() => startEdit(mf)}
+                    className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-xl mr-2"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => deleteMF(mf.mf_id)}
+                    className="mt-4 bg-red-500 text-white px-4 py-2 rounded-xl"
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

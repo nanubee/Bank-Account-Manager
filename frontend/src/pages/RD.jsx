@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { USER_ID } from "../config";
 
 function RD() {
   const [accounts, setAccounts] = useState([]);
@@ -17,10 +16,10 @@ function RD() {
 
   const loadData = async () => {
     try {
-      const accountsResponse = await api.get(`/accounts/${USER_ID}`);
+      const accountsResponse = await api.get(`/accounts`);
       setAccounts(accountsResponse.data);
 
-      const rdResponse = await api.get(`/rds/user/${USER_ID}`);
+      const rdResponse = await api.get(`/rds/user`);
       setRds(rdResponse.data);
     } catch (error) {
       console.error(error);
@@ -51,8 +50,15 @@ function RD() {
 
       loadData();
     } catch (error) {
-      console.error(error);
-      alert(error.response?.data?.detail || "Failed to create RD");
+      console.log(error.response?.data);
+
+      const detail = error.response?.data?.detail;
+
+      if (Array.isArray(detail)) {
+        alert(detail.map((item) => item.msg).join("\n"));
+      } else {
+        alert(detail || "Failed to create RD");
+      }
     }
   };
 
@@ -77,8 +83,15 @@ function RD() {
 
       loadData();
     } catch (error) {
-      console.error(error);
-      alert(error.response?.data?.detail || "Payment failed");
+      console.log(error.response?.data);
+
+      const detail = error.response?.data?.detail;
+
+      if (Array.isArray(detail)) {
+        alert(detail.map((item) => item.msg).join("\n"));
+      } else {
+        alert(detail || "Payment Failed");
+      }
     }
   };
 
@@ -87,8 +100,53 @@ function RD() {
       const response = await api.get(`/rds/${rdId}/summary`);
       setSelectedRD(response.data);
     } catch (error) {
-      console.error(error);
-      alert("Failed to load summary");
+      console.log(error.response?.data);
+
+      const detail = error.response?.data?.detail;
+
+      if (Array.isArray(detail)) {
+        alert(detail.map((item) => item.msg).join("\n"));
+      } else {
+        alert(detail || "Failed to load summary");
+      }
+    }
+  };
+
+  const deleteRD = async (rdId) => {
+    try {
+      await api.delete(`/rds/${rdId}`);
+
+      alert("RD deleted successfully");
+
+      loadData();
+    } catch (error) {
+      console.log(error.response?.data);
+
+      const detail = error.response?.data?.detail;
+
+      if (Array.isArray(detail)) {
+        alert(detail.map((item) => item.msg).join("\n"));
+      } else {
+        alert(detail || "Failed to delete RD");
+      }
+    }
+  };
+
+  const closeRD = async (rdId) => {
+    try {
+      await api.post(`/rds/${rdId}/close`);
+
+      alert("RD closed successfully");
+
+      loadData();
+    } catch (error) {
+      const detail = error.response?.data?.detail;
+
+      if (Array.isArray(detail)) {
+        alert(detail.map((item) => item.msg).join("\n"));
+      } else {
+        alert(detail || "Failed to close RD");
+      }
     }
   };
 
@@ -172,57 +230,88 @@ function RD() {
             No recurring deposits found.
           </div>
         ) : (
-          rds.map((rd) => (
-            <div
-              key={rd.rd_id}
-              className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200"
-            >
-              <h3 className="font-bold text-lg mb-3">RD #{rd.rd_id}</h3>
+          rds.map((rd) => {
+            const linkedAccount = accounts.find(
+              (account) => account.account_id === rd.account_id,
+            );
 
-              <p>
-                Monthly Amount: ₹{Number(rd.monthly_amount).toLocaleString()}
-              </p>
-
-              <p>Interest Rate: {rd.interest_rate}%</p>
-
-              <p>Duration: {rd.duration_months} months</p>
-
-              <p>Start Date: {rd.start_date}</p>
-
-              <p
-                className={
-                  rd.status === "active"
-                    ? "text-green-600 font-semibold"
-                    : "text-red-600 font-semibold"
-                }
+            return (
+              <div
+                key={rd.rd_id}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200"
               >
-                {rd.status}
-              </p>
+                <h3 className="font-bold text-lg mb-3">RD #{rd.rd_id}</h3>
 
-              <div className="flex flex-wrap gap-3 mt-4">
-                <input
-                  type="date"
-                  value={paymentDate}
-                  onChange={(e) => setPaymentDate(e.target.value)}
-                  className="border border-slate-300 rounded-xl p-2"
-                />
+                <p>
+                  Linked Account: {linkedAccount?.bank_name}(
+                  {linkedAccount?.account_number_last4})
+                </p>
 
-                <button
-                  onClick={() => payInstallment(rd.rd_id)}
-                  className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700"
+                <p>
+                  Monthly Amount: ₹{Number(rd.monthly_amount).toLocaleString()}
+                </p>
+
+                <p>Interest Rate: {rd.interest_rate}%</p>
+
+                <p>Duration: {rd.duration_months} months</p>
+
+                <p>Start Date: {rd.start_date}</p>
+
+                <p
+                  className={
+                    rd.status === "active"
+                      ? "text-green-600 font-semibold"
+                      : "text-red-600 font-semibold"
+                  }
                 >
-                  Pay Installment
-                </button>
+                  {rd.status}
+                </p>
 
-                <button
-                  onClick={() => viewSummary(rd.rd_id)}
-                  className="bg-slate-800 text-white px-4 py-2 rounded-xl hover:bg-slate-900"
-                >
-                  View Summary
-                </button>
+                <div className="flex flex-wrap gap-3 mt-4">
+                  {rd.status === "active" && (
+                    <>
+                      <input
+                        type="date"
+                        value={paymentDate}
+                        onChange={(e) => setPaymentDate(e.target.value)}
+                        className="border border-slate-300 rounded-xl p-2"
+                      />
+
+                      <button
+                        onClick={() => payInstallment(rd.rd_id)}
+                        className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700"
+                      >
+                        Pay Installment
+                      </button>
+
+                      <button
+                        onClick={() => closeRD(rd.rd_id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600"
+                      >
+                        Close RD
+                      </button>
+                    </>
+                  )}
+
+                  <button
+                    onClick={() => viewSummary(rd.rd_id)}
+                    className="bg-slate-800 text-white px-4 py-2 rounded-xl hover:bg-slate-900"
+                  >
+                    View Summary
+                  </button>
+
+                  {rd.status === "closed" && (
+                    <button
+                      onClick={() => deleteRD(rd.rd_id)}
+                      className="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700"
+                    >
+                      Delete RD
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 

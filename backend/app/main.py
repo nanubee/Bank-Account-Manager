@@ -8,6 +8,7 @@ from app.routes.dashboard import router as dashboard_router
 from app.routes.mutual_fund import router as mf_router
 from app.routes.stock import router as stock_router
 from app.routes.asset import router as asset_router
+from app.routes.auth import router as auth_router
 
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,3 +30,4 @@ app.include_router(dashboard_router)
 app.include_router(mf_router)
 app.include_router(stock_router)
 app.include_router(asset_router)
+app.include_router(auth_router)

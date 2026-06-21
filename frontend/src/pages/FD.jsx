@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { USER_ID } from "../config";
+//import { USER_ID } from "../config";
 
 function FD() {
   const [accounts, setAccounts] = useState([]);
   const [fds, setFDs] = useState([]);
+  //const USER_ID = localStorage.getItem("user_id");
 
   const [selectedAccountId, setSelectedAccountId] = useState("");
   const [amount, setAmount] = useState("");
@@ -14,10 +15,10 @@ function FD() {
 
   const loadData = async () => {
     try {
-      const accountsResponse = await api.get(`/accounts/${USER_ID}`);
+      const accountsResponse = await api.get(`/accounts`);
       setAccounts(accountsResponse.data);
 
-      const fdResponse = await api.get(`/fds/user/${USER_ID}`);
+      const fdResponse = await api.get(`/fds/user`);
       setFDs(fdResponse.data);
     } catch (error) {
       console.error(error);
@@ -48,8 +49,15 @@ function FD() {
 
       loadData();
     } catch (error) {
-      console.error(error);
-      alert(error.response?.data?.detail || "Failed to create FD");
+      console.log(error.response?.data);
+
+      const detail = error.response?.data?.detail;
+
+      if (Array.isArray(detail)) {
+        alert(detail.map((item) => item.msg).join("\n"));
+      } else {
+        alert(detail || "Failed to create FD ");
+      }
     }
   };
 
@@ -61,8 +69,35 @@ function FD() {
 
       loadData();
     } catch (error) {
-      console.error(error);
-      alert(error.response?.data?.detail || "Failed to close FD");
+      console.log(error.response?.data);
+
+      const detail = error.response?.data?.detail;
+
+      if (Array.isArray(detail)) {
+        alert(detail.map((item) => item.msg).join("\n"));
+      } else {
+        alert(detail || "Failed to close FD");
+      }
+    }
+  };
+
+  const deleteFD = async (fdId) => {
+    try {
+      await api.delete(`/fds/${fdId}`);
+
+      alert("FD deleted successfully");
+
+      loadData();
+    } catch (error) {
+      console.log(error.response?.data);
+
+      const detail = error.response?.data?.detail;
+
+      if (Array.isArray(detail)) {
+        alert(detail.map((item) => item.msg).join("\n"));
+      } else {
+        alert(detail || "Failed to delete FD");
+      }
     }
   };
 
@@ -131,45 +166,71 @@ function FD() {
       </div>
 
       <h2 className="text-2xl font-semibold mb-4">My Fixed Deposits</h2>
-
       <div className="grid gap-4">
-        {fds.map((fd) => (
-          <div
-            key={fd.fd_id}
-            className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200"
-          >
-            <h3 className="font-bold text-lg mb-3">FD #{fd.fd_id}</h3>
-
-            <p>Amount: ₹{Number(fd.amount).toLocaleString()}</p>
-
-            <p>Interest Rate: {fd.interest_rate}%</p>
-
-            <p>Duration: {fd.duration_months} months</p>
-
-            <p>
-              Maturity Amount: ₹{Number(fd.maturity_amount).toLocaleString()}
-            </p>
-
-            <p
-              className={
-                fd.status === "active"
-                  ? "text-green-600 font-semibold"
-                  : "text-red-600 font-semibold"
-              }
-            >
-              {fd.status}
-            </p>
-
-            {fd.status === "active" && (
-              <button
-                onClick={() => closeFD(fd.fd_id)}
-                className="mt-4 bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600"
-              >
-                Close FD
-              </button>
-            )}
+        {fds.length === 0 ? (
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+            No fixed deposits found.
           </div>
-        ))}
+        ) : (
+          fds.map((fd) => {
+            const linkedAccount = accounts.find(
+              (account) => account.account_id === fd.account_id,
+            );
+
+            return (
+              <div
+                key={fd.fd_id}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200"
+              >
+                <h3 className="font-bold text-lg mb-3">FD #{fd.fd_id}</h3>
+
+                <p>
+                  Linked Account: {linkedAccount?.bank_name}(
+                  {linkedAccount?.account_number_last4})
+                </p>
+
+                <p>Amount: ₹{Number(fd.amount).toLocaleString()}</p>
+
+                <p>Interest Rate: {fd.interest_rate}%</p>
+
+                <p>Duration: {fd.duration_months} months</p>
+
+                <p>
+                  Maturity Amount: ₹
+                  {Number(fd.maturity_amount).toLocaleString()}
+                </p>
+
+                <p
+                  className={
+                    fd.status === "active"
+                      ? "text-green-600 font-semibold"
+                      : "text-red-600 font-semibold"
+                  }
+                >
+                  {fd.status}
+                </p>
+
+                {fd.status === "active" && (
+                  <button
+                    onClick={() => closeFD(fd.fd_id)}
+                    className="mt-4 bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600"
+                  >
+                    Close FD
+                  </button>
+                )}
+
+                {fd.status === "closed" && (
+                  <button
+                    onClick={() => deleteFD(fd.fd_id)}
+                    className="mt-4 bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700"
+                  >
+                    Delete FD
+                  </button>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

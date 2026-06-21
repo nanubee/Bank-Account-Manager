@@ -9,6 +9,8 @@ from app.models.rd_payment import RDPayment
 from app.models.mutual_fund import MutualFund
 from app.models.stock import Stock
 from app.models.asset import Asset
+from app.models.user import User
+from app.core.auth import get_current_user
 
 router = APIRouter(
     prefix="/dashboard",
@@ -16,14 +18,15 @@ router = APIRouter(
 )
 
 
-@router.get("/net-worth/{user_id}")
+@router.get("/net-worth")
 def get_net_worth(
-    user_id: int,
+    #user_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     accounts = (
         db.query(Account)
-        .filter(Account.user_id == user_id)
+        .filter(Account.user_id == current_user.user_id)
         .all()
     )
 

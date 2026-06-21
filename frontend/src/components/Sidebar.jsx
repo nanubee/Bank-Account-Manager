@@ -27,7 +27,7 @@ function Sidebar({ expanded, setExpanded }) {
 
       {/* Scrollable Menu */}
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
-        <Link to="/" className="hover:text-emerald-400">
+        <Link to="/dashboard" className="hover:text-emerald-400">
           🏠 {expanded && "Dashboard"}
         </Link>
 
@@ -91,6 +91,14 @@ function Sidebar({ expanded, setExpanded }) {
 
         <Link to="/reports" className="hover:text-emerald-400">
           📊 {expanded && "Reports"}
+        </Link>
+
+        {expanded && (
+          <h2 className="text-xs uppercase text-slate-400 mt-4">Settings</h2>
+        )}
+
+        <Link to="/profile" className="hover:text-emerald-400">
+          ⚙️ {expanded && "Profile"}
         </Link>
       </div>
     </div>

@@ -5,9 +5,17 @@ from datetime import date
 
 #registration
 class UserCreate(BaseModel):
+    full_name: str
     email: EmailStr
     password: str
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+class EmailUpdate(BaseModel):
+    new_email: str
+
+class PasswordUpdate(BaseModel):
+    old_password: str
+    new_password: str

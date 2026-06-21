@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { USER_ID } from "../config";
+//import { USER_ID } from "../config";
 
 function Stock() {
+  //const USER_ID = localStorage.getItem("user_id");
   const [accounts, setAccounts] = useState([]);
   const [stocks, setStocks] = useState([]);
 
@@ -19,10 +20,10 @@ function Stock() {
 
   const loadData = async () => {
     try {
-      const accountsResponse = await api.get(`/accounts/${USER_ID}`);
+      const accountsResponse = await api.get(`/accounts`);
       setAccounts(accountsResponse.data);
 
-      const stockResponse = await api.get(`/stocks/user/${USER_ID}`);
+      const stockResponse = await api.get(`/stocks/user`);
       setStocks(stockResponse.data);
     } catch (error) {
       console.error(error);
@@ -163,74 +164,87 @@ function Stock() {
       <h2 className="text-2xl font-semibold mb-4">My Stocks</h2>
 
       <div className="grid gap-4">
-        {stocks.map((stock) => (
-          <div
-            key={stock.stock_id}
-            className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200"
-          >
-            {editingId === stock.stock_id ? (
-              <>
-                <input
-                  value={editFundName}
-                  onChange={(e) => setEditFundName(e.target.value)}
-                  className="border rounded-xl p-2 w-full mb-2"
-                />
+        {stocks.map((stock) => {
+          const linkedAccount = accounts.find(
+            (account) => account.account_id === stock.account_id,
+          );
 
-                <input
-                  type="number"
-                  value={editInvestedAmount}
-                  onChange={(e) => setEditInvestedAmount(e.target.value)}
-                  className="border rounded-xl p-2 w-full mb-2"
-                />
+          return (
+            <div
+              key={stock.stock_id}
+              className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200"
+            >
+              {editingId === stock.stock_id ? (
+                <>
+                  <input
+                    value={editFundName}
+                    onChange={(e) => setEditFundName(e.target.value)}
+                    className="border rounded-xl p-2 w-full mb-2"
+                  />
 
-                <input
-                  type="number"
-                  value={editCurrentValue}
-                  onChange={(e) => setEditCurrentValue(e.target.value)}
-                  className="border rounded-xl p-2 w-full mb-2"
-                />
+                  <input
+                    type="number"
+                    value={editInvestedAmount}
+                    onChange={(e) => setEditInvestedAmount(e.target.value)}
+                    className="border rounded-xl p-2 w-full mb-2"
+                  />
 
-                <button
-                  onClick={updateStock}
-                  className="bg-green-600 text-white px-4 py-2 rounded-xl mr-2"
-                >
-                  Save
-                </button>
+                  <input
+                    type="number"
+                    value={editCurrentValue}
+                    onChange={(e) => setEditCurrentValue(e.target.value)}
+                    className="border rounded-xl p-2 w-full mb-2"
+                  />
 
-                <button
-                  onClick={() => setEditingId(null)}
-                  className="bg-slate-500 text-white px-4 py-2 rounded-xl"
-                >
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <>
-                <h3 className="font-bold text-lg">{stock.stock_name}</h3>
+                  <button
+                    onClick={updateStock}
+                    className="bg-green-600 text-white px-4 py-2 rounded-xl mr-2"
+                  >
+                    Save
+                  </button>
 
-                <p>
-                  Invested: ₹{Number(stock.invested_amount).toLocaleString()}
-                </p>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="bg-slate-500 text-white px-4 py-2 rounded-xl"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 className="font-bold text-lg">{stock.stock_name}</h3>
 
-                <p>Current: ₹{Number(stock.current_value).toLocaleString()}</p>
+                  <p>
+                    Linked Account: {linkedAccount?.bank_name}(
+                    {linkedAccount?.account_number_last4})
+                  </p>
 
-                <button
-                  onClick={() => startEdit(stock)}
-                  className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-xl mr-2"
-                >
-                  Edit
-                </button>
+                  <p>
+                    Invested: ₹{Number(stock.invested_amount).toLocaleString()}
+                  </p>
 
-                <button
-                  onClick={() => deleteStock(stock.stock_id)}
-                  className="mt-4 bg-red-500 text-white px-4 py-2 rounded-xl"
-                >
-                  Delete
-                </button>
-              </>
-            )}
-          </div>
-        ))}
+                  <p>
+                    Current: ₹{Number(stock.current_value).toLocaleString()}
+                  </p>
+
+                  <button
+                    onClick={() => startEdit(stock)}
+                    className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-xl mr-2"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => deleteStock(stock.stock_id)}
+                    className="mt-4 bg-red-500 text-white px-4 py-2 rounded-xl"
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

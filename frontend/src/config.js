@@ -1,1 +1,4 @@
-export const USER_ID =3;
+const USER_ID =
+  localStorage.getItem("user_id");
+
+export { USER_ID };

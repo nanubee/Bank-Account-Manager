@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 #BankAcc
 class AccountCreate(BaseModel):
-    user_id: int
     bank_name: str
     country: str
     account_type: str

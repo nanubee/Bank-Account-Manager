@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { USER_ID } from "../config";
+//import { USER_ID } from "../config";
 
 function Accounts() {
+  //const USER_ID = localStorage.getItem("user_id");
   const [accounts, setAccounts] = useState([]);
 
   const [bankName, setBankName] = useState("");
@@ -14,7 +15,7 @@ function Accounts() {
 
   const loadAccounts = async () => {
     try {
-      const response = await api.get(`/accounts/${USER_ID}`);
+      const response = await api.get(`/accounts`);
       setAccounts(response.data);
     } catch (error) {
       console.error(error);
@@ -33,7 +34,7 @@ function Accounts() {
 
     try {
       await api.post("/accounts", {
-        user_id: USER_ID,
+        //user_id: USER_ID,
         bank_name: bankName,
         country,
         account_type: accountType,
@@ -52,6 +53,38 @@ function Accounts() {
       setCurrency("");
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleCountryChange = (e) => {
+    const selectedCountry = e.target.value;
+
+    setCountry(selectedCountry);
+
+    if (selectedCountry === "India") {
+      setCurrency("INR");
+    } else if (selectedCountry === "Kuwait") {
+      setCurrency("KWD");
+    } else {
+      setCurrency("");
+    }
+  };
+
+  const handleDeleteAccount = async (accountId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this account?",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await api.delete(`/accounts/${accountId}`);
+
+      alert("Account deleted successfully");
+
+      loadAccounts();
+    } catch (error) {
+      alert(error.response?.data?.detail || "Failed to delete account");
     }
   };
 
@@ -77,14 +110,16 @@ function Accounts() {
             onChange={(e) => setBankName(e.target.value)}
           />
 
-          <input
+          <select
             className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            type="text"
-            placeholder="Country"
             value={country}
-            onChange={(e) => setCountry(e.target.value)}
-          />
-
+            onChange={handleCountryChange}
+          >
+            <option value="">Select Country</option>
+            <option value="India">India</option>
+            <option value="Kuwait">Kuwait</option>
+            <option value="Other">Other</option>
+          </select>
           <input
             className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
             type="text"
@@ -111,10 +146,11 @@ function Accounts() {
           />
 
           <input
-            className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50"
             type="text"
             placeholder="Currency"
             value={currency}
+            disabled={country === "India" || country === "Kuwait"}
             onChange={(e) => setCurrency(e.target.value)}
           />
         </div>
@@ -163,6 +199,13 @@ function Accounts() {
               <p>Country: {account.country}</p>
               <p>ID: {account.account_id}</p>
             </div>
+
+            <button
+              onClick={() => handleDeleteAccount(account.account_id)}
+              className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+            >
+              Delete Account
+            </button>
           </div>
         ))}
       </div>

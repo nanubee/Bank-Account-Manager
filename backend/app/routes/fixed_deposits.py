@@ -5,6 +5,8 @@ from app.database import get_db
 
 from app.models.fixed_deposit import FixedDeposit
 from app.models.account import Account
+from app.models.user import User
+from app.core.auth import get_current_user
 
 from app.schemas.fixed_deposit import FDCreate
 
@@ -20,6 +22,7 @@ def create_fd(
     fd: FDCreate,
     db: Session = Depends(get_db)
 ):
+    
     account = (
         db.query(Account)
         .filter(Account.account_id == fd.account_id)
@@ -68,15 +71,17 @@ def create_fd(
 
 
 # Get all FDs belonging to a user
-@router.get("/user/{user_id}")
+@router.get("/user")
 def get_fds_by_user(
-    user_id: int,
+    #user_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
+
 ):
     return (
         db.query(FixedDeposit)
         .join(Account)
-        .filter(Account.user_id == user_id)
+        .filter(Account.user_id == current_user.user_id)
         .all()
     )
 
@@ -141,4 +146,34 @@ def close_fd(
     return {
         "message": "FD closed successfully",
         "credited_amount": fd.maturity_amount
+    }
+
+@router.delete("/{fd_id}")
+def delete_fd(
+    fd_id: int,
+    db: Session = Depends(get_db)
+):
+    fd = (
+        db.query(FixedDeposit)
+        .filter(FixedDeposit.fd_id == fd_id)
+        .first()
+    )
+
+    if not fd:
+        raise HTTPException(
+            status_code=404,
+            detail="FD not found"
+        )
+
+    if fd.status == "active":
+        raise HTTPException(
+            status_code=400,
+            detail="Close the FD before deleting it"
+        )
+
+    db.delete(fd)
+    db.commit()
+
+    return {
+        "message": "FD deleted successfully",
     }

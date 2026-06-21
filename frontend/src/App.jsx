@@ -11,6 +11,9 @@ import RD from "./pages/RD";
 import MF from "./pages/MF";
 import Stock from "./pages/Stock";
 import Assets from "./pages/Assets";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Profile from "./pages/Profile";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -27,7 +30,8 @@ function App() {
           }`}
         >
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/accounts" element={<Accounts />} />
             <Route path="/deposit" element={<Deposit />} />
             <Route path="/withdraw" element={<Withdraw />} />
@@ -38,6 +42,9 @@ function App() {
             <Route path="/mfs" element={<MF />} />
             <Route path="/stocks" element={<Stock />} />
             <Route path="/assets" element={<Assets />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/login" element={<Login />} />
           </Routes>
         </main>
       </div>
