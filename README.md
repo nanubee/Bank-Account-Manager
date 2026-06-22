@@ -1,18 +1,63 @@
-# Bank Account Manager
+# Banking & Wealth Management System
 
-A full-stack banking application built with FastAPI, React, and PostgreSQL that allows users to manage bank accounts, perform transactions, and track account activity.
+A full-stack financial management application built with FastAPI, React, and PostgreSQL that enables users to manage bank accounts, investments, assets, and overall net worth through a centralized dashboard.
 
 ## Features
 
-- User account management
+### User Management
+- User registration and authentication
+- Profile management
+- Password update functionality
+
+### Banking Operations
 - Create and manage multiple bank accounts
 - Deposit funds
 - Withdraw funds
 - Transfer funds between accounts
-- Transaction history tracking
+- View transaction history
+- Real-time balance tracking
+
+### Investment Management
+
+#### Fixed Deposits (FD)
+- Create and manage fixed deposits
+- Track maturity amounts
+- Close deposits
+
+#### Recurring Deposits (RD)
+- Create recurring deposits
+- Record RD payments
+- Track accumulated investments
+
+#### Mutual Funds
+- Add and manage mutual fund investments
+- Track investment value
+
+#### Stocks
+- Add and manage stock investments
+- Monitor portfolio holdings
+
+### Asset Management
+- Track personal assets such as:
+  - Property
+  - Vehicles
+  - Gold
+  - Other valuable assets
+- Maintain asset details and values
+
+### Dashboard & Analytics
+- Net worth calculation
+- Bank balance summary
+- Investment portfolio overview
+- Asset value tracking
+- Consolidated financial insights
+
+### System Features
 - RESTful API architecture
 - PostgreSQL database integration
-- React frontend with responsive UI
+- Data validation and integrity checks
+- Responsive React user interface
+- Secure transaction processing
 
 ## Tech Stack
 
@@ -21,59 +66,142 @@ A full-stack banking application built with FastAPI, React, and PostgreSQL that 
 - SQLAlchemy
 - PostgreSQL
 - Pydantic
+- Passlib
+- Uvicorn
 
 ### Frontend
 - React
 - Axios
 - React Router
+- Tailwind CSS
 
 ### Tools
 - Postman
 - Git
 - GitHub
 
-## Project Structure
-bank-account-manager/
-├── backend/
-├── frontend/
-└── README.md
+## Database Schema
 
+The application uses a normalized PostgreSQL database with the following core entities:
 
-## API Endpoints
+- Users
+- Accounts
+- Transactions
+- Fixed Deposits
+- Recurring Deposits
+- RD Payments
+- Mutual Funds
+- Stocks
+- Assets
+
+Business rules include:
+- Balance validation
+- Insufficient funds checks
+- Transfer validation
+- Investment tracking
+- Financial calculations
+- Data integrity enforcement
+
+## API Modules
+
+### Users
+- Register User
+- Login User
+- Update Profile
+- Change Password
 
 ### Accounts
 - Create Account
-- Get Account Details
-- List User Accounts
+- View Accounts
+- Account Details
 
 ### Transactions
-- Deposit
-- Withdraw
-- Transfer
+- Deposit Funds
+- Withdraw Funds
+- Transfer Funds
 - View Transaction History
 
-## Future Enhancements
+### Fixed Deposits
+- Create FD
+- View FDs
+- Close FD
 
-- Authentication and Authorization
-- Admin Dashboard
-- Fixed Deposits (FD)
-- Recurring Deposits (RD)
-- Mutual Fund Tracking
-- Stock Portfolio Tracking
-- Property Asset Management
+### Recurring Deposits
+- Create RD
+- Record RD Payments
+- View RDs
+
+### Mutual Funds
+- Add Investment
+- View Portfolio
+
+### Stocks
+- Add Investment
+- View Portfolio
+
+### Assets
+- Add Asset
+- View Assets
+- Update Asset Details
+
+### Dashboard
+- Financial Summary
+- Net Worth Calculation
+
+## Project Structure
+
+```text
+banking-wealth-management-system/
+│
+├── backend/
+│   ├── app/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   ├── routers/
+│   │   ├── database/
+│   │   └── main.py
+│   │
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   ├── components/
+│   │   ├── api/
+│   │   └── App.jsx
+│   │
+│   └── package.json
+│
+└── README.md
+```
 
 ## Installation
 
 ### Backend
 
+```bash
 cd backend
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn app.main:app --reload
+```
 
 ### Frontend
+
+```bash
 cd frontend
 npm install
 npm run dev
+```
 
-### Author
-Nandha Biju
+## Key Highlights
+
+- Developed a full-stack banking and wealth management system using React, FastAPI, PostgreSQL, and SQLAlchemy.
+- Implemented RESTful APIs for banking operations, investment tracking, and asset management.
+- Designed a normalized relational database with financial validation rules and transaction integrity checks.
+- Built responsive dashboards for net-worth analysis and portfolio monitoring.
+- Performed end-to-end API testing using Postman and integrated frontend-backend communication through Axios.
+
+## Author
+
+**Nandha Biju**  
+B.Tech Computer Science and Engineering 
